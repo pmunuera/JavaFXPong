@@ -55,6 +55,7 @@ public class CtrlGame implements Initializable {
 
         // Quan apretem una tecla
         if (evt.getEventType() == KeyEvent.KEY_PRESSED) {
+            if(Main.socketClient!=null){
             if (evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.W) {
                 JSONObject obj = new JSONObject("{}");
                 obj.put("type", "playerDirection");
@@ -68,7 +69,6 @@ public class CtrlGame implements Initializable {
                 obj.put("direction","down");
                 Main.socketClient.safeSend(obj.toString());
             }
-            if(Main.socketClient!=null){
                 Main.socketClient.onMessage((response) -> {
                     //System.out.println("message");
                     // JavaFX necessita que els canvis es facin des de el thread principal
@@ -85,6 +85,7 @@ public class CtrlGame implements Initializable {
 
         // Quan deixem anar la tecla
         if (evt.getEventType() == KeyEvent.KEY_RELEASED) {
+            if(Main.socketClient!=null){
             if (evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.W) {
                 if (ctrlCanvas.playerDirection.equals("up")) {
                     JSONObject obj = new JSONObject("{}");
@@ -101,7 +102,6 @@ public class CtrlGame implements Initializable {
                     Main.socketClient.safeSend(obj.toString());
                 }
             }
-            if(Main.socketClient!=null){
             Main.socketClient.onMessage((response) -> {
                 //System.out.println("message");
                 // JavaFX necessita que els canvis es facin des de el thread principal
