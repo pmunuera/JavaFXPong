@@ -7,10 +7,10 @@ import javafx.stage.WindowEvent;
 
 public class Main extends Application {
     public static UtilsWS socketClient;
-    public static int port = 3000;
+    public static int port = 443;
     public static String protocol = "https";
-    public static String host = "localhost";
-    public static String protocolWS = "ws";
+    public static String host = "pong-production-1a79.up.railway.app";
+    public static String protocolWS = "wss";
     public static String playerId="";
     private CtrlGame ctrlGame;
 

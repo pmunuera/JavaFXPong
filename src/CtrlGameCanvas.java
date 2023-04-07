@@ -19,7 +19,8 @@ public class CtrlGameCanvas {
 
     private String gameStatus = "playing";
 
-    private int playerPoints = 0;
+    private int pointsP1 = 0;
+    private int pointsP2 = 0;
     private double player1X = 700;
     private double player1Y = 200;
     private double player2X = 50;
@@ -137,7 +138,7 @@ public class CtrlGameCanvas {
             Platform.runLater(()->{ 
                 // Fer aquí els canvis a la interficie
                 JSONObject msgObj = new JSONObject(response);
-                //System.out.println(response);
+                System.out.println(response);
                 if(msgObj.getString("status").equals("Ball")){
                     ballDirection=msgObj.getString("ballDirection");
                     ballX=msgObj.getDouble("ballX");
@@ -315,14 +316,14 @@ public class CtrlGameCanvas {
         gc.fillArc(ballX - ballHalf, ballY - ballHalf, ballSize, ballSize, 0.0, 360, ArcType.ROUND);
 
         // Draw text with points
+        final double boardCenterX = cnv.getWidth() / 2;
         gc.setFill(Color.BLACK);
         gc.setFont(new Font("Arial", 20));
-        String pointsText = "Points: " + playerPoints;
-        drawText(gc, pointsText, cnv.getWidth() - 20, 20, "right");
+        String pointsText = "Points P1: " + pointsP1 + " VS Points P2: " + pointsP2;
+        drawText(gc, pointsText, boardCenterX, 20, "right");
 
         // Draw game over text
-        if (gameStatus.equals("gameOver")) {
-            final double boardCenterX = cnv.getWidth() / 2;
+        if (gameStatus == "gameOver") {
             final double boardCenterY = cnv.getHeight() / 2;
 
             gc.setFont(new Font("Arial", 40));
