@@ -138,7 +138,7 @@ public class CtrlGameCanvas {
             Platform.runLater(()->{ 
                 // Fer aquí els canvis a la interficie
                 JSONObject msgObj = new JSONObject(response);
-                System.out.println(response);
+                //System.out.println(response);
                 if(msgObj.getString("status").equals("Ball")){
                     ballDirection=msgObj.getString("ballDirection");
                     ballX=msgObj.getDouble("ballX");
