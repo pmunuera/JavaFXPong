@@ -75,7 +75,7 @@ public class CtrlGameCanvas {
         final double boardWidth = cnv.getWidth();
         final double boardHeight = cnv.getHeight();
         // Move player
-        switch (player1Direction) {
+        /*switch (player1Direction) {
             case "up":
                 player1Y = player1Y - playerSpeed / fps;
                 break;
@@ -90,11 +90,11 @@ public class CtrlGameCanvas {
             case "down":
                 player2Y = player2Y + playerSpeed / fps;
                 break;
-        }
-        /*JSONObject obj1 = new JSONObject("{}");
-        System.out.println(playerDirection);
+        }*/
+        JSONObject obj1 = new JSONObject("{}");
         obj1.put("type", "movePlayer");
-        obj1.put("playerDirection",playerDirection);
+        obj1.put("player1Direction",player1Direction);
+        obj1.put("player1Direction",player2Direction);
         obj1.put("player1Y",player1Y);
         obj1.put("player2Y", player2Y);
         Main.socketClient.safeSend(obj1.toString());
@@ -109,7 +109,7 @@ public class CtrlGameCanvas {
                 System.out.println("Player y: "+player1Y);
                 player2Y=msgObj.getDouble("player2Y");
             });
-        });*/
+        });
 
         //  Keep player in bounds
         final double playerMinY = 5 + borderSize + playerHalf;
@@ -153,6 +153,7 @@ public class CtrlGameCanvas {
                     pointsP1=msgObj.getInt("pointsP1");
                     pointsP2=msgObj.getInt("pointsP2");
                     gameStatus=msgObj.getString("gameStatus");
+                    //System.out.println("Jugadors: "+msgObj.getInt("jugadors"));
                 }
             });
         });
