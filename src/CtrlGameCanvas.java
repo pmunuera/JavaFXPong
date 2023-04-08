@@ -94,20 +94,20 @@ public class CtrlGameCanvas {
         JSONObject obj1 = new JSONObject("{}");
         obj1.put("type", "movePlayer");
         obj1.put("player1Direction",player1Direction);
-        obj1.put("player1Direction",player2Direction);
+        obj1.put("player2Direction",player2Direction);
         obj1.put("player1Y",player1Y);
         obj1.put("player2Y", player2Y);
         Main.socketClient.safeSend(obj1.toString());
         //System.out.println("Send WebSocket: " + obj.toString());
         Main.socketClient.onMessage((response) -> {
-            System.out.println("message");
             // JavaFX necessita que els canvis es facin des de el thread principal
             Platform.runLater(()->{ 
                 // Fer aquí els canvis a la interficie
                 JSONObject msgObj = new JSONObject(response);
-                player1Y=msgObj.getDouble("player1Y");
-                System.out.println("Player y: "+player1Y);
-                player2Y=msgObj.getDouble("player2Y");
+                if(msgObj.getString("status").equals("MovePlayer")){
+                    player1Y=msgObj.getDouble("player1Y");
+                    player2Y=msgObj.getDouble("player2Y");
+                }
             });
         });
 
@@ -341,7 +341,12 @@ public class CtrlGameCanvas {
             drawText(gc, "GAME OVER", boardCenterX, boardCenterY - 20, "center");
 
             gc.setFont(new Font("Arial", 20));
-            drawText(gc, "You are a loser!", boardCenterX, boardCenterY + 20, "center");
+            if(pointsP1==5&&playingAs==1||pointsP2==5&&playingAs==2){
+                drawText(gc, "You win!", boardCenterX, boardCenterY + 20, "center");
+            }
+            else{
+                drawText(gc, "You are a loser!", boardCenterX, boardCenterY + 20, "center");
+            }
             this.stop();
             Main.socketClient.close();
         }
