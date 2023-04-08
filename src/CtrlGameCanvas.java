@@ -143,6 +143,9 @@ public class CtrlGameCanvas {
                     ballDirection=msgObj.getString("ballDirection");
                     ballX=msgObj.getDouble("ballX");
                     ballY=msgObj.getDouble("ballY");
+                    pointsP1=msgObj.getInt("pointsP1");
+                    pointsP2=msgObj.getInt("pointsP2");
+                    gameStatus=msgObj.getString("gameStatus");
                 }
             });
         });
