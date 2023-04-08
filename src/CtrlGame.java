@@ -7,6 +7,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -18,6 +19,9 @@ public class CtrlGame implements Initializable {
 
     @FXML
     private Canvas canvas;
+
+    @FXML
+    public static Button button;
 
     private static CtrlGameCanvas ctrlCanvas = new CtrlGameCanvas();
 
@@ -140,5 +144,14 @@ public class CtrlGame implements Initializable {
             });
         }
         }
+    }
+    public static void buttonSetter(){
+        button.setDisable(false);
+        button.setVisible(true);
+    }
+    @FXML
+    private void playAgain(){
+        ctrlCanvas.start(ctrlCanvas.cnv);
+        Main.socketClient = UtilsWS.getSharedInstance(Main.protocolWS + "://" + Main.host + ":" + Main.port);
     }
 }

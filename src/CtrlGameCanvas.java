@@ -2,16 +2,17 @@ import org.json.JSONObject;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class CtrlGameCanvas {
-  
-    private Canvas cnv;
+    public static Canvas cnv;
     private GraphicsContext gc;
     private AnimationTimer animationTimer;
 
@@ -57,7 +58,13 @@ public class CtrlGameCanvas {
         ballY = cnv.getHeight() / 2;
         player1Y = 270;
         player2Y = 270;
-        
+        int numeroAleatorio = (int) (Math.random()*4+1);
+        switch(numeroAleatorio){
+            case 1: ballDirection = "upRight";
+            case 2: ballDirection = "upLeft";
+            case 3: ballDirection = "downRight";
+            case 4: ballDirection = "downLeft";
+        }
         // Init drawing bucle
         animationTimer = new UtilsFps(this::run, this::draw);
         animationTimer.start();
@@ -332,7 +339,6 @@ public class CtrlGameCanvas {
         gc.setFont(new Font("Arial", 20));
         String pointsText = "Points P1: " + pointsP1 + " VS Points P2: " + pointsP2;
         drawText(gc, pointsText, boardCenterX, 20, "right");
-
         // Draw game over text
         if (gameStatus.equals("gameOver")) {
             final double boardCenterY = cnv.getHeight() / 2;
@@ -345,8 +351,9 @@ public class CtrlGameCanvas {
                 drawText(gc, "You win!", boardCenterX, boardCenterY + 20, "center");
             }
             else{
-                drawText(gc, "You are a loser!", boardCenterX, boardCenterY + 20, "center");
+                drawText(gc, "You lose!", boardCenterX, boardCenterY + 20, "center");
             }
+            CtrlGame.buttonSetter();
             this.stop();
             Main.socketClient.close();
         }
