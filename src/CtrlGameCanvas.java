@@ -18,19 +18,20 @@ public class CtrlGameCanvas {
     private double borderSize = 5;
 
     private String gameStatus = "playing";
-
+    public static int playingAs = 0;
     private int pointsP1 = 0;
     private int pointsP2 = 0;
-    private double player1X = 700;
+    private double player1X = 50;
     private double player1Y = 200;
-    private double player2X = 50;
+    private double player2X = 700;
     private double player2Y = 200;
     private final double playerWidth = 5;
     private final double playerHeight = 100;
     private final double playerHalf = playerHeight / 2;
     private double playerSpeed = 250;
     private final double playerSpeedIncrement = 15;
-    public String playerDirection = "none";
+    public String player1Direction = "none";
+    public String player2Direction = "none";
 
     private double ballX = Double.POSITIVE_INFINITY;
     private double ballY = Double.POSITIVE_INFINITY;
@@ -74,13 +75,19 @@ public class CtrlGameCanvas {
         final double boardWidth = cnv.getWidth();
         final double boardHeight = cnv.getHeight();
         // Move player
-        switch (playerDirection) {
+        switch (player1Direction) {
             case "up":
                 player1Y = player1Y - playerSpeed / fps;
-                player2Y = player2Y - playerSpeed / fps;
                 break;
             case "down":
                 player1Y = player1Y + playerSpeed / fps;
+                break;
+        }
+        switch (player2Direction) {
+            case "up":
+                player2Y = player2Y - playerSpeed / fps;
+                break;
+            case "down":
                 player2Y = player2Y + playerSpeed / fps;
                 break;
         }
@@ -288,8 +295,8 @@ public class CtrlGameCanvas {
         }
 */
         // Set player X position
-        player1X = 700;
-        player2X = 50;
+        player1X = 50;
+        player2X = 700;
     }
     }
 
@@ -326,7 +333,7 @@ public class CtrlGameCanvas {
         drawText(gc, pointsText, boardCenterX, 20, "right");
 
         // Draw game over text
-        if (gameStatus == "gameOver") {
+        if (gameStatus.equals("gameOver")) {
             final double boardCenterY = cnv.getHeight() / 2;
 
             gc.setFont(new Font("Arial", 40));
@@ -334,6 +341,8 @@ public class CtrlGameCanvas {
 
             gc.setFont(new Font("Arial", 20));
             drawText(gc, "You are a loser!", boardCenterX, boardCenterY + 20, "center");
+            this.stop();
+            Main.socketClient.close();
         }
     }
 

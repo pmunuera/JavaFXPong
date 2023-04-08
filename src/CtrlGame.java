@@ -60,6 +60,7 @@ public class CtrlGame implements Initializable {
                 JSONObject obj = new JSONObject("{}");
                 obj.put("type", "playerDirection");
                 obj.put("direction","up");
+                obj.put("player",CtrlGameCanvas.playingAs);
                 Main.socketClient.safeSend(obj.toString());
                 //System.out.println("Send WebSocket: " + obj.toString());
             }
@@ -67,6 +68,7 @@ public class CtrlGame implements Initializable {
                 JSONObject obj = new JSONObject("{}");
                 obj.put("type", "playerDirection");
                 obj.put("direction","down");
+                obj.put("player",CtrlGameCanvas.playingAs);
                 Main.socketClient.safeSend(obj.toString());
             }
                 Main.socketClient.onMessage((response) -> {
@@ -76,8 +78,13 @@ public class CtrlGame implements Initializable {
                         // Fer aquí els canvis a la interficie
                         JSONObject msgObj = new JSONObject(response);
                         if(msgObj.getString("status").equals("Direction")){
-                            ctrlCanvas.playerDirection = (String) msgObj.get("playerDirection");
-                        }
+                            if(msgObj.getInt("player")==1){
+                                ctrlCanvas.player1Direction = (String) msgObj.get("playerDirection");
+                            }
+                            if(msgObj.getInt("player")==2){
+                                ctrlCanvas.player2Direction = (String) msgObj.get("playerDirection");
+                            }
+                            }
                     });
                 });
         }
@@ -87,7 +94,13 @@ public class CtrlGame implements Initializable {
         if (evt.getEventType() == KeyEvent.KEY_RELEASED) {
             if(Main.socketClient!=null){
             if (evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.W) {
-                if (ctrlCanvas.playerDirection.equals("up")) {
+                if (ctrlCanvas.player1Direction.equals("up")) {
+                    JSONObject obj = new JSONObject("{}");
+                    obj.put("type", "playerDirection");
+                    obj.put("direction","none");
+                    Main.socketClient.safeSend(obj.toString());
+                }
+                if (ctrlCanvas.player2Direction.equals("up")) {
                     JSONObject obj = new JSONObject("{}");
                     obj.put("type", "playerDirection");
                     obj.put("direction","none");
@@ -95,7 +108,13 @@ public class CtrlGame implements Initializable {
                 }
             }
             if (evt.getCode() == KeyCode.DOWN || evt.getCode() == KeyCode.S) {
-                if (ctrlCanvas.playerDirection.equals("down")) {
+                if (ctrlCanvas.player1Direction.equals("down")) {
+                    JSONObject obj = new JSONObject("{}");
+                    obj.put("type", "playerDirection");
+                    obj.put("direction","none");
+                    Main.socketClient.safeSend(obj.toString());
+                }
+                if (ctrlCanvas.player2Direction.equals("down")) {
                     JSONObject obj = new JSONObject("{}");
                     obj.put("type", "playerDirection");
                     obj.put("direction","none");
@@ -109,7 +128,14 @@ public class CtrlGame implements Initializable {
                     // Fer aquí els canvis a la interficie
                     JSONObject msgObj = new JSONObject(response);
                     //System.out.println(response);
-                    ctrlCanvas.playerDirection = (String) msgObj.get("playerDirection");
+                    if(msgObj.getString("status").equals("Direction")){
+                        if(msgObj.getInt("player")==1){
+                            ctrlCanvas.player1Direction = (String) msgObj.get("playerDirection");
+                        }
+                        if(msgObj.getInt("player")==2){
+                            ctrlCanvas.player2Direction = (String) msgObj.get("playerDirection");
+                        }
+                        }
                 });
             });
         }

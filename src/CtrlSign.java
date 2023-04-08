@@ -50,9 +50,11 @@ public class CtrlSign implements Initializable{
                     System.out.println(JSONlist);
                     if(JSONlist.length()==1){
                         Main.playerId=(String) JSONlist.get(0);
+                        CtrlGameCanvas.playingAs=1;
                     }
                     else if (JSONlist.length()==2){
                         Main.playerId=(String) JSONlist.get(1);
+                        CtrlGameCanvas.playingAs=2;
                     }
                     UtilsViews.setViewAnimating("ViewGame");
                     CtrlGameCanvas.start=true;
