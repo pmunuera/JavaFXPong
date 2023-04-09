@@ -20,8 +20,6 @@ public class UtilsWS  extends WebSocketClient {
     }
 
     static public UtilsWS getSharedInstance (String location) {
-
-        if (sharedInstance == null) {
             try {
                 sharedInstance = new UtilsWS(location, (Draft) new Draft_6455());
                 sharedInstance.connect();
@@ -29,7 +27,6 @@ public class UtilsWS  extends WebSocketClient {
                 e.printStackTrace(); 
                 System.out.println("Error: " + location + " no és una direcció URI de WebSocket vàlida");
             }
-        }
 
         return sharedInstance;
     }

@@ -48,7 +48,6 @@ public class CtrlGameCanvas {
     public CtrlGameCanvas () { }
     // Iniciar el context i bucle de dibuix
     public void start (Canvas canvas) {
-
         cnv = canvas;
         // Define drawing context
         gc = canvas.getGraphicsContext2D();
@@ -93,7 +92,6 @@ public class CtrlGameCanvas {
                 Platform.runLater(()->{ 
                     // Fer aquí els canvis a la interficie
                     JSONObject msgObj = new JSONObject(response);
-                    System.out.println(response);
                     if(msgObj.getString("status").equals("MovePlayer")){
                         player1Y=msgObj.getDouble("player1Y");
                         player2Y=msgObj.getDouble("player2Y");

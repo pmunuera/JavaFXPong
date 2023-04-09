@@ -37,9 +37,6 @@ public class CtrlSign implements Initializable{
         Main.protocolWS=serverText1[0];
         Main.port=Integer.parseInt(serverText2[1]);
         Main.socketClient = UtilsWS.getSharedInstance(Main.protocolWS + "://" + Main.host + ":" + Main.port);
-        if(Main.socketClient.isClosed()){
-            Main.socketClient.reconnect();
-        }
         Main.socketClient.onMessage((response) -> {
             // JavaFX necessita que els canvis es facin des de el thread principal
             Platform.runLater(()->{
@@ -52,10 +49,8 @@ public class CtrlSign implements Initializable{
 
                     JSONArray JSONlist = msgObj.getJSONArray("list");
                     ArrayList<String> list = new ArrayList<>();
-                    System.out.println("HOLa: "+JSONlist);
                     if(JSONlist.length()==1){
                         Main.playerId=(String) JSONlist.get(0);
-                        System.out.println("Entra1");
                         CtrlGameCanvas.playingAs=1;
                     }
                     else if (JSONlist.length()==2){
