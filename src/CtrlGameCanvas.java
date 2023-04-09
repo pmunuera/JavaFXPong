@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
@@ -18,7 +19,7 @@ public class CtrlGameCanvas {
 
     private double borderSize = 5;
 
-    private String gameStatus = "playing";
+    public static String gameStatus = "waiting";
     public static int playingAs = 0;
     private int pointsP1 = 0;
     private int pointsP2 = 0;
@@ -49,7 +50,6 @@ public class CtrlGameCanvas {
     public void start (Canvas canvas) {
 
         cnv = canvas;
-
         // Define drawing context
         gc = canvas.getGraphicsContext2D();
 
@@ -58,13 +58,6 @@ public class CtrlGameCanvas {
         ballY = cnv.getHeight() / 2;
         player1Y = 270;
         player2Y = 270;
-        int numeroAleatorio = (int) (Math.random()*4+1);
-        switch(numeroAleatorio){
-            case 1: ballDirection = "upRight";
-            case 2: ballDirection = "upLeft";
-            case 3: ballDirection = "downRight";
-            case 4: ballDirection = "downLeft";
-        }
         // Init drawing bucle
         animationTimer = new UtilsFps(this::run, this::draw);
         animationTimer.start();
@@ -79,233 +72,78 @@ public class CtrlGameCanvas {
     private void run(double fps) {
         if (fps < 1) return;
         if(start==true){
-        final double boardWidth = cnv.getWidth();
-        final double boardHeight = cnv.getHeight();
-        // Move player
-        /*switch (player1Direction) {
-            case "up":
-                player1Y = player1Y - playerSpeed / fps;
-                break;
-            case "down":
-                player1Y = player1Y + playerSpeed / fps;
-                break;
-        }
-        switch (player2Direction) {
-            case "up":
-                player2Y = player2Y - playerSpeed / fps;
-                break;
-            case "down":
-                player2Y = player2Y + playerSpeed / fps;
-                break;
-        }*/
-        JSONObject obj1 = new JSONObject("{}");
-        obj1.put("type", "movePlayer");
-        obj1.put("player1Direction",player1Direction);
-        obj1.put("player2Direction",player2Direction);
-        obj1.put("player1Y",player1Y);
-        obj1.put("player2Y", player2Y);
-        Main.socketClient.safeSend(obj1.toString());
-        //System.out.println("Send WebSocket: " + obj.toString());
-        Main.socketClient.onMessage((response) -> {
-            // JavaFX necessita que els canvis es facin des de el thread principal
-            Platform.runLater(()->{ 
-                // Fer aquí els canvis a la interficie
-                JSONObject msgObj = new JSONObject(response);
-                if(msgObj.getString("status").equals("MovePlayer")){
-                    player1Y=msgObj.getDouble("player1Y");
-                    player2Y=msgObj.getDouble("player2Y");
-                }
+            final double boardWidth = cnv.getWidth();
+            final double boardHeight = cnv.getHeight();
+            // Move ball
+            JSONObject obj = new JSONObject("{}");
+            obj.put("type", "ballDirection");
+            obj.put("player1Y",player1Y);
+            obj.put("player2Y", player2Y);
+            Main.socketClient.safeSend(obj.toString());
+            // Move player
+            JSONObject obj1 = new JSONObject("{}");
+            obj1.put("type", "movePlayer");
+            obj1.put("player1Direction",player1Direction);
+            obj1.put("player2Direction",player2Direction);
+            obj1.put("player1Y",player1Y);
+            obj1.put("player2Y", player2Y);
+            Main.socketClient.safeSend(obj1.toString());
+            Main.socketClient.onMessage((response) -> {
+                // JavaFX necessita que els canvis es facin des de el thread principal
+                Platform.runLater(()->{ 
+                    // Fer aquí els canvis a la interficie
+                    JSONObject msgObj = new JSONObject(response);
+                    System.out.println(response);
+                    if(msgObj.getString("status").equals("MovePlayer")){
+                        player1Y=msgObj.getDouble("player1Y");
+                        player2Y=msgObj.getDouble("player2Y");
+                    }
+                    if(msgObj.getString("status").equals("Disconnect")){
+                        Main.socketClient.close();
+                        this.stop();
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setHeaderText(null);
+                        alert.setTitle("Rival disconnected");
+                        alert.setContentText("Your rival desconnected, we disconnected you too");
+                        alert.showAndWait();
+                        UtilsViews.setViewAnimating("ViewSign");
+                    }
+                    if(msgObj.getString("status").equals("Ball")){
+                        ballDirection=msgObj.getString("ballDirection");
+                        ballX=msgObj.getDouble("ballX");
+                        ballY=msgObj.getDouble("ballY");
+                        pointsP1=msgObj.getInt("pointsP1");
+                        pointsP2=msgObj.getInt("pointsP2");
+                        gameStatus=msgObj.getString("gameStatus");
+                    }
+                });
             });
-        });
 
-        //  Keep player in bounds
-        final double playerMinY = 5 + borderSize + playerHalf;
-        final double playerMaxY = boardHeight - playerHalf - 5 - borderSize;
+            //  Keep player in bounds
+            final double playerMinY = 5 + borderSize + playerHalf;
+            final double playerMaxY = boardHeight - playerHalf - 5 - borderSize;
 
-        if (player1Y < playerMinY) {
+            if (player1Y < playerMinY) {
 
-            player1Y = playerMinY;
+                player1Y = playerMinY;
 
-        } else if (player1Y > playerMaxY) {
+            } else if (player1Y > playerMaxY) {
 
-            player1Y = playerMaxY;
+                player1Y = playerMaxY;
+            }
+
+            if (player2Y < playerMinY) {
+
+                player2Y = playerMinY;
+
+            } else if (player2Y > playerMaxY) {
+
+                player2Y = playerMaxY;
+            }
+            // Set player X position
+            player1X = 50;
+            player2X = 700;
         }
-
-        if (player2Y < playerMinY) {
-
-            player2Y = playerMinY;
-
-        } else if (player2Y > playerMaxY) {
-
-            player2Y = playerMaxY;
-        }
-        //Main.socketClient = UtilsWS.getSharedInstance(Main.protocolWS + "://" + Main.host + ":" + Main.port);
-        JSONObject obj = new JSONObject("{}");
-        obj.put("type", "ballDirection");
-        obj.put("player1Y",player1Y);
-        obj.put("player2Y", player2Y);
-        Main.socketClient.safeSend(obj.toString());
-        //System.out.println("Send WebSocket: " + obj.toString());
-        Main.socketClient.onMessage((response) -> {
-            //System.out.println("message");
-            // JavaFX necessita que els canvis es facin des de el thread principal
-            Platform.runLater(()->{ 
-                // Fer aquí els canvis a la interficie
-                JSONObject msgObj = new JSONObject(response);
-                //System.out.println(response);
-                if(msgObj.getString("status").equals("Ball")){
-                    ballDirection=msgObj.getString("ballDirection");
-                    ballX=msgObj.getDouble("ballX");
-                    ballY=msgObj.getDouble("ballY");
-                    pointsP1=msgObj.getInt("pointsP1");
-                    pointsP2=msgObj.getInt("pointsP2");
-                    gameStatus=msgObj.getString("gameStatus");
-                    //System.out.println("Jugadors: "+msgObj.getInt("jugadors"));
-                }
-            });
-        });
-        // Move ball
-        /*double ballNextX = ballX;
-        double ballNextY = ballY;
-        switch (ballDirection) {
-            case "upRight": 
-                ballNextX = ballX + ballSpeed / fps;
-                ballNextY = ballY - ballSpeed / fps;
-                break;
-            case "upLeft": 
-                ballNextX = ballX - ballSpeed / fps;
-                ballNextY = ballY - ballSpeed / fps;
-                break;
-            case "downRight": 
-                ballNextX = ballX + ballSpeed / fps;
-                ballNextY = ballY + ballSpeed / fps;
-                break;
-            case "downLeft": 
-                ballNextX = ballX - ballSpeed / fps;
-                ballNextY = ballY + ballSpeed / fps;
-                break;
-        }
-
-        // Check ball collision with board sides
-        final double[][] lineBall = { {ballX, ballY}, {ballNextX, ballNextY} };
-
-        final double[][] lineBoardLeft = { {borderSize, 0}, {borderSize, boardHeight} };
-        final double[] intersectionLeft = findIntersection(lineBall, lineBoardLeft);
-
-        final double boardMaxX = boardWidth - borderSize;
-        final double[][] lineBoardRight = { {boardMaxX, 0}, {boardMaxX, boardHeight} };
-        final double[] intersectionRight = findIntersection(lineBall, lineBoardRight);
-
-        final double[][] lineBoardTop = { {0, borderSize}, {boardWidth, borderSize} };
-        final double[] intersectionTop = findIntersection(lineBall, lineBoardTop);
-
-        final double boardMaxY = boardHeight - borderSize;
-        final double[][] lineBoardBot = { {0, boardMaxY}, {boardWidth, boardMaxY} };
-        final double[] intersectionBot = findIntersection(lineBall, lineBoardBot);
-
-        if (intersectionLeft != null) {
-            switch (ballDirection) {
-                case "upLeft": 
-                    ballDirection = "upRight";
-                    break;
-                case "downLeft": 
-                    ballDirection = "downRight";
-                    break;
-            }
-            ballX = intersectionLeft[0] + 1;
-            ballY = intersectionLeft[1];
-
-        } else if (intersectionRight != null) {
-
-            switch (ballDirection) {
-                case "upRight": 
-                    ballDirection = "upLeft";
-                    break;
-                case "downRight": 
-                    ballDirection = "downLeft";
-                    break;
-            }
-            ballX = intersectionRight[0] - 1;
-            ballY = intersectionRight[1];
-
-        } else if (intersectionTop != null) {
-
-            switch (ballDirection) {
-                case "upRight": 
-                    ballDirection = "downRight"; 
-                    break;
-                case "upLeft": 
-                    ballDirection = "downLeft"; 
-                    break;
-            }
-            ballX = intersectionTop[0];
-            ballY = intersectionTop[1] + 1;
-
-        } else if (intersectionBot != null) {
-
-            switch (ballDirection) {
-                case "downRight": 
-                    ballDirection = "upRight"; 
-                    break;
-                case "downLeft": 
-                    ballDirection = "upLeft"; 
-                    break;
-            }
-            ballX = intersectionBot[0];
-            ballY = intersectionBot[1] - 1;
-
-        } else {
-            if (ballNextY > boardHeight) {
-                gameStatus = "gameOver";
-            } else {
-                ballX = ballNextX;
-                ballY = ballNextY;
-            }
-        }
-
-        // Check ball collision with player
-        final double[][] linePlayer1 = { {player1X, player1Y + playerHalf}, {player1X, player1Y - playerHalf} };
-        final double[] intersectionPlayer1 = findIntersection(lineBall, linePlayer1);
-
-        if (intersectionPlayer1 != null) {
-            switch (ballDirection) {
-                case "downRight":
-                    ballDirection = "downLeft";
-                    break;
-                case "upRight": 
-                    ballDirection = "upLeft";
-                    break;
-            }
-            ballX = intersectionPlayer1[0] - 1; // cambiar si el jugador es el de la izquierda a + 1
-            ballY = intersectionPlayer1[1];
-            playerPoints = playerPoints + 1;
-            ballSpeed = ballSpeed + ballSpeedIncrement;
-            playerSpeed = playerSpeed + playerSpeedIncrement;
-        }
-
-        final double[][] linePlayer2 = { {player2X, player2Y - playerHalf}, {player2X, player2Y + playerHalf} };
-        final double[] intersectionPlayer2 = findIntersection(lineBall, linePlayer2);
-
-        if (intersectionPlayer2 != null) {
-            switch (ballDirection) {
-                case "downLeft":
-                    ballDirection = "downRight";
-                    break;
-                case "upLeft": 
-                    ballDirection = "upRight";
-                    break;
-            }
-            ballX = intersectionPlayer2[0] + 1; // cambiar si el jugador es el de la izquierda a + 1
-            ballY = intersectionPlayer2[1];
-            playerPoints = playerPoints + 1;
-            ballSpeed = ballSpeed + ballSpeedIncrement;
-            playerSpeed = playerSpeed + playerSpeedIncrement;
-        }
-*/
-        // Set player X position
-        player1X = 50;
-        player2X = 700;
-    }
     }
 
     // Dibuixar
@@ -335,13 +173,22 @@ public class CtrlGameCanvas {
 
         // Draw text with points
         final double boardCenterX = cnv.getWidth() / 2;
+        final double boardCenterY = cnv.getHeight() / 2;
         gc.setFill(Color.BLACK);
         gc.setFont(new Font("Arial", 20));
         String pointsText = "Points P1: " + pointsP1 + " VS Points P2: " + pointsP2;
         drawText(gc, pointsText, boardCenterX, 20, "right");
+        //Draw waiting text
+        if(gameStatus.equals("waiting")){
+            gc.setFont(new Font("Arial", 40));
+            drawText(gc, "Waiting for player two", boardCenterX, boardCenterY - 20, "center");
+        }
+        if(gameStatus.equals("syncing")){
+            gc.setFont(new Font("Arial", 20));
+            drawText(gc, "Synconizing with new player 3,2,1...", boardCenterX, boardCenterY + 20, "center");
+        }
         // Draw game over text
-        if (gameStatus.equals("gameOver")) {
-            final double boardCenterY = cnv.getHeight() / 2;
+        if (pointsP1==5||pointsP2==5) {
 
             gc.setFont(new Font("Arial", 40));
             drawText(gc, "GAME OVER", boardCenterX, boardCenterY - 20, "center");
@@ -353,7 +200,8 @@ public class CtrlGameCanvas {
             else{
                 drawText(gc, "You lose!", boardCenterX, boardCenterY + 20, "center");
             }
-            CtrlGame.buttonSetter();
+            CtrlGame ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
+            ctrlGame.buttonSetter();
             this.stop();
             Main.socketClient.close();
         }

@@ -21,7 +21,7 @@ public class CtrlGame implements Initializable {
     private Canvas canvas;
 
     @FXML
-    public static Button button;
+    private Button playButton;
 
     private static CtrlGameCanvas ctrlCanvas = new CtrlGameCanvas();
 
@@ -59,7 +59,7 @@ public class CtrlGame implements Initializable {
 
         // Quan apretem una tecla
         if (evt.getEventType() == KeyEvent.KEY_PRESSED) {
-            if(Main.socketClient!=null){
+            if(Main.socketClient!=null&&CtrlGameCanvas.gameStatus.equals("playing")){
             if (evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.W) {
                 JSONObject obj = new JSONObject("{}");
                 obj.put("type", "playerDirection");
@@ -96,7 +96,7 @@ public class CtrlGame implements Initializable {
 
         // Quan deixem anar la tecla
         if (evt.getEventType() == KeyEvent.KEY_RELEASED) {
-            if(Main.socketClient!=null){
+            if(Main.socketClient!=null&&CtrlGameCanvas.gameStatus.equals("playing")){
             if (evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.W) {
                 if (ctrlCanvas.player1Direction.equals("up")) {
                     JSONObject obj = new JSONObject("{}");
@@ -145,13 +145,15 @@ public class CtrlGame implements Initializable {
         }
         }
     }
-    public static void buttonSetter(){
-        button.setDisable(false);
-        button.setVisible(true);
+    public void buttonSetter(){
+        this.playButton.setDisable(false);
+        this.playButton.setVisible(true);
     }
     @FXML
     private void playAgain(){
-        ctrlCanvas.start(ctrlCanvas.cnv);
-        Main.socketClient = UtilsWS.getSharedInstance(Main.protocolWS + "://" + Main.host + ":" + Main.port);
+        CtrlSign ctrlSign = (CtrlSign) UtilsViews.getController("ViewSign");
+        Main.socketClient.reconnect();
+        ctrlSign.enter();
+        ctrlCanvas.start(canvas);
     }
 }
