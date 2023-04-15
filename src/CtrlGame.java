@@ -98,32 +98,18 @@ public class CtrlGame implements Initializable {
         if (evt.getEventType() == KeyEvent.KEY_RELEASED) {
             if(Main.socketClient!=null&&CtrlGameCanvas.gameStatus.equals("playing")){
             if (evt.getCode() == KeyCode.UP || evt.getCode() == KeyCode.W) {
-                if (ctrlCanvas.player1Direction.equals("up")) {
-                    JSONObject obj = new JSONObject("{}");
-                    obj.put("type", "playerDirection");
-                    obj.put("direction","none");
-                    Main.socketClient.safeSend(obj.toString());
-                }
-                if (ctrlCanvas.player2Direction.equals("up")) {
-                    JSONObject obj = new JSONObject("{}");
-                    obj.put("type", "playerDirection");
-                    obj.put("direction","none");
-                    Main.socketClient.safeSend(obj.toString());
-                }
+                JSONObject obj = new JSONObject("{}");
+                obj.put("type", "playerDirection");
+                obj.put("direction","none");
+                obj.put("player",CtrlGameCanvas.playingAs);
+                Main.socketClient.safeSend(obj.toString());
             }
             if (evt.getCode() == KeyCode.DOWN || evt.getCode() == KeyCode.S) {
-                if (ctrlCanvas.player1Direction.equals("down")) {
-                    JSONObject obj = new JSONObject("{}");
-                    obj.put("type", "playerDirection");
-                    obj.put("direction","none");
-                    Main.socketClient.safeSend(obj.toString());
-                }
-                if (ctrlCanvas.player2Direction.equals("down")) {
-                    JSONObject obj = new JSONObject("{}");
-                    obj.put("type", "playerDirection");
-                    obj.put("direction","none");
-                    Main.socketClient.safeSend(obj.toString());
-                }
+                JSONObject obj = new JSONObject("{}");
+                obj.put("type", "playerDirection");
+                obj.put("direction","none");
+                obj.put("player",CtrlGameCanvas.playingAs);
+                Main.socketClient.safeSend(obj.toString());
             }
             Main.socketClient.onMessage((response) -> {
                 //System.out.println("message");
@@ -134,10 +120,10 @@ public class CtrlGame implements Initializable {
                     //System.out.println(response);
                     if(msgObj.getString("status").equals("Direction")){
                         if(msgObj.getInt("player")==1){
-                            ctrlCanvas.player1Direction = (String) msgObj.get("playerDirection");
+                            ctrlCanvas.player1Direction = msgObj.getString("playerDirection");
                         }
                         if(msgObj.getInt("player")==2){
-                            ctrlCanvas.player2Direction = (String) msgObj.get("playerDirection");
+                            ctrlCanvas.player2Direction = msgObj.getString("playerDirection");
                         }
                         }
                 });
@@ -149,6 +135,10 @@ public class CtrlGame implements Initializable {
         this.playButton.setDisable(false);
         this.playButton.setVisible(true);
     }
+    public void invisibleButton(){
+        this.playButton.setDisable(true);
+        this.playButton.setVisible(false);
+    }
     @FXML
     private void playAgain(){
         this.playButton.setDisable(true);
@@ -156,6 +146,5 @@ public class CtrlGame implements Initializable {
         JSONObject obj1 = new JSONObject("{}");
         obj1.put("type", "playAgain");
         Main.socketClient.safeSend(obj1.toString());
-        this.playButton.setDisable(true);
     }
 }

@@ -24,9 +24,9 @@ public class CtrlGameCanvas {
     private int pointsP1 = 0;
     private int pointsP2 = 0;
     private double player1X = 50;
-    private double player1Y = 200;
+    public static double player1Y = 200;
     private double player2X = 700;
-    private double player2Y = 200;
+    public static double player2Y = 200;
     private final double playerWidth = 5;
     private final double playerHeight = 100;
     private final double playerHalf = playerHeight / 2;
@@ -34,7 +34,6 @@ public class CtrlGameCanvas {
     private final double playerSpeedIncrement = 15;
     public String player1Direction = "none";
     public String player2Direction = "none";
-
     private double ballX = Double.POSITIVE_INFINITY;
     private double ballY = Double.POSITIVE_INFINITY;
     private final double ballSize = 15;
@@ -70,6 +69,10 @@ public class CtrlGameCanvas {
     // Animar
     private void run(double fps) {
         if (fps < 1) return;
+        if(gameStatus.equalsIgnoreCase("waiting")){
+            CtrlGame ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
+            ctrlGame.invisibleButton();
+        }
         if(start==true){
             final double boardWidth = cnv.getWidth();
             final double boardHeight = cnv.getHeight();
@@ -183,7 +186,7 @@ public class CtrlGameCanvas {
         }
         if(gameStatus.equals("syncing")){
             gc.setFont(new Font("Arial", 20));
-            drawText(gc, "Synconizing with new player 3,2,1...", boardCenterX, boardCenterY + 20, "center");
+            drawText(gc, "Syncronizing with new player 3,2,1...", boardCenterX, boardCenterY + 20, "center");
         }
         // Draw game over text
         if ((pointsP1==5||pointsP2==5)&&gameStatus.equalsIgnoreCase("gameOver")) {
