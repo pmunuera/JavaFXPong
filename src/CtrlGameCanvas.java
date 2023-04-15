@@ -186,7 +186,7 @@ public class CtrlGameCanvas {
             drawText(gc, "Synconizing with new player 3,2,1...", boardCenterX, boardCenterY + 20, "center");
         }
         // Draw game over text
-        if (pointsP1==5||pointsP2==5) {
+        if ((pointsP1==5||pointsP2==5)&&gameStatus.equalsIgnoreCase("gameOver")) {
 
             gc.setFont(new Font("Arial", 40));
             drawText(gc, "GAME OVER", boardCenterX, boardCenterY - 20, "center");

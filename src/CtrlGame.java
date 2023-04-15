@@ -151,10 +151,11 @@ public class CtrlGame implements Initializable {
     }
     @FXML
     private void playAgain(){
+        this.playButton.setDisable(true);
+        this.playButton.setVisible(false);
         JSONObject obj1 = new JSONObject("{}");
         obj1.put("type", "playAgain");
         Main.socketClient.safeSend(obj1.toString());
         this.playButton.setDisable(true);
-        this.playButton.setVisible(false);
     }
 }
