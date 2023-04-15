@@ -151,9 +151,8 @@ public class CtrlGame implements Initializable {
     }
     @FXML
     private void playAgain(){
-        CtrlSign ctrlSign = (CtrlSign) UtilsViews.getController("ViewSign");
-        Main.socketClient.reconnect();
-        ctrlSign.enter();
-        ctrlCanvas.start(canvas);
+        JSONObject obj1 = new JSONObject("{}");
+        obj1.put("type", "playAgain");
+        Main.socketClient.safeSend(obj1.toString());
     }
 }

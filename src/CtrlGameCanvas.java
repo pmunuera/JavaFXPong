@@ -200,8 +200,7 @@ public class CtrlGameCanvas {
             }
             CtrlGame ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
             ctrlGame.buttonSetter();
-            this.stop();
-            Main.socketClient.close();
+            
         }
     }
 
