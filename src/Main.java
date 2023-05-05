@@ -28,7 +28,8 @@ public class Main extends Application {
 
         UtilsViews.parentContainer.setStyle("-fx-font: 14 arial;");
         UtilsViews.addView(getClass(), "ViewSign", "./assets/viewSign.fxml");
-        CtrlSign ctrlSign = (CtrlSign) UtilsViews.getController("ViewSign");
+        UtilsViews.addView(getClass(), "ViewRegistre", "./assets/viewRegistre.fxml");
+        UtilsViews.addView(getClass(), "ViewLogin", "./assets/viewLogin.fxml");
         UtilsViews.addView(getClass(), "ViewGame", "./assets/viewGame.fxml");
         ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
         

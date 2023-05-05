@@ -73,7 +73,7 @@ public class CtrlSign implements Initializable{
 
         JSONObject objResponse = new JSONObject(response);
         if (objResponse.getString("status").equals("OK")) {
-            UtilsViews.setViewAnimating("ViewGame");
+            UtilsViews.setViewAnimating("ViewLogin");
         }
         else{
             showError();
