@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javafx.animation.AnimationTimer;
@@ -69,6 +72,54 @@ public class CtrlGameCanvas {
     // Animar
     private void run(double fps) {
         if (fps < 1) return;
+        if(Main.socketClient!=null){
+            Main.socketClient.onMessage((response) -> {
+                // JavaFX necessita que els canvis es facin des de el thread principal
+                Platform.runLater(()->{ 
+                    if(response!=null){
+                        JSONObject msgObj = new JSONObject(response);
+                        String type = msgObj.getString("type");
+                        System.out.println(msgObj);
+                        if (type.equals("clients")) {
+                            CtrlSign.id=msgObj.getString("id");
+                            JSONArray JSONlist = msgObj.getJSONArray("list");
+                            ArrayList<String> list = new ArrayList<>();
+                            if(JSONlist.length()==1){
+                                Main.playerId=(String) JSONlist.get(0);
+                                CtrlGameCanvas.playingAs=1;
+                            }
+                            else if (JSONlist.length()==2){
+                                Main.playerId=(String) JSONlist.get(1);
+                                CtrlGameCanvas.playingAs=2;
+                            }
+                            UtilsViews.setViewAnimating("ViewLogin");
+                            System.out.println(Main.playerId);
+                        }
+                        if(type.equals("confirmationRegister")){
+                            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                            alert.setHeaderText(null);
+                            alert.setTitle("OK");
+                            alert.setContentText("Usuari registrat correctament");
+                            alert.showAndWait();
+                            UtilsViews.setViewAnimating("ViewLogin");
+                        }
+                        if(type.equals("confirmationLogin")){
+                            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                            alert.setHeaderText(null);
+                            alert.setTitle("OK");
+                            alert.setContentText("Login correcte");
+                            alert.showAndWait();
+                            UtilsViews.setViewAnimating("ViewSelect");
+                        }
+                        if(type.equals("userList")){
+                            CtrlUsuaris cu = (CtrlUsuaris) UtilsViews.getController("ViewUsuaris");
+                            cu.loadList(response);
+                        }
+                    }
+                    
+                });
+            });
+    }
         if(gameStatus.equalsIgnoreCase("waiting")){
             CtrlGame ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
             ctrlGame.invisibleButton();

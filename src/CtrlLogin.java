@@ -3,6 +3,7 @@ import java.util.ResourceBundle;
 
 import org.json.JSONObject;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -27,9 +28,10 @@ public class CtrlLogin implements Initializable{
     public void login(){
         if(codi.getText()!=""&&pseudonim.getText()!=""){
             JSONObject obj = new JSONObject("{}");
-            obj.put("type", "registrar");
+            obj.put("type", "login");
             obj.put("pseudonim",pseudonim.getText());
             obj.put("codi", codi.getText());
+            obj.put("id",CtrlSign.id);
             Main.socketClient.safeSend(obj.toString());
         }
         else{

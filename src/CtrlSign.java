@@ -16,6 +16,8 @@ import javafx.scene.control.TextField;
 import javafx.util.Duration;
 
 public class CtrlSign implements Initializable{
+    public static String id;
+
     @FXML
     private TextField localhost;
 
@@ -43,8 +45,8 @@ public class CtrlSign implements Initializable{
                 if(response!=null){
                 JSONObject msgObj = new JSONObject(response);
                 String type = msgObj.getString("type");
-
-                // Update clients choiceBox list
+                id=msgObj.getString("id");
+                
                 if (type.equals("clients")) {
 
                     JSONArray JSONlist = msgObj.getJSONArray("list");
@@ -57,7 +59,7 @@ public class CtrlSign implements Initializable{
                         Main.playerId=(String) JSONlist.get(1);
                         CtrlGameCanvas.playingAs=2;
                     }
-                    UtilsViews.setViewAnimating("ViewGame");
+                    UtilsViews.setViewAnimating("ViewLogin");
                     CtrlGameCanvas.start=true;
                     System.out.println(Main.playerId);
                 }

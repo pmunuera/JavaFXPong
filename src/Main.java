@@ -30,6 +30,8 @@ public class Main extends Application {
         UtilsViews.addView(getClass(), "ViewSign", "./assets/viewSign.fxml");
         UtilsViews.addView(getClass(), "ViewRegistre", "./assets/viewRegistre.fxml");
         UtilsViews.addView(getClass(), "ViewLogin", "./assets/viewLogin.fxml");
+        UtilsViews.addView(getClass(), "ViewSelect", "./assets/viewSelect.fxml");
+        UtilsViews.addView(getClass(), "ViewUsuaris", "./assets/viewUsuaris.fxml");
         UtilsViews.addView(getClass(), "ViewGame", "./assets/viewGame.fxml");
         ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
         

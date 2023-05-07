@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="CtrlUsuaris">
+   <children>
+      <Button layoutX="14.0" layoutY="31.0" mnemonicParsing="false" onAction="#goBack" prefHeight="25.0" prefWidth="94.0" text="&lt;-- Tornar" />
+      <ScrollPane layoutX="6.0" layoutY="78.0" prefHeight="321.0" prefWidth="600.0">
+         <content>
+            <VBox fx:id="vBoxList" prefHeight="312.0" prefWidth="598.0" />
+         </content>
+      </ScrollPane>
+   </children>
+</AnchorPane>
