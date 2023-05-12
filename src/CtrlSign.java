@@ -60,7 +60,7 @@ public class CtrlSign implements Initializable{
                         CtrlGameCanvas.playingAs=2;
                     }
                     UtilsViews.setViewAnimating("ViewLogin");
-                    CtrlGameCanvas.start=true;
+                    //CtrlGameCanvas.start=true;
                     System.out.println(Main.playerId);
                 }
             }else{

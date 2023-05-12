@@ -16,7 +16,12 @@ public class CtrlSelect implements Initializable{
 
     @FXML
     public void play(){
-        CtrlGameCanvas.start=true;
+        //CtrlGameCanvas.start=true;
+        JSONObject obj = new JSONObject("{}");
+        obj.put("type", "getColor");
+        obj.put("playerId",CtrlLogin.idUsuari);
+        obj.put("id",Main.playerId);
+        Main.socketClient.safeSend(obj.toString());
         UtilsViews.setViewAnimating("ViewGame"); 
     }
     @FXML

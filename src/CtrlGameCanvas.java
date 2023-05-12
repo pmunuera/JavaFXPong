@@ -1,4 +1,8 @@
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Optional;
+
+import javax.swing.Action;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -10,6 +14,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import javafx.scene.text.Font;
@@ -30,6 +35,7 @@ public class CtrlGameCanvas {
     public static double player1Y = 200;
     private double player2X = 700;
     public static double player2Y = 200;
+    private int numPlayers;
     private final double playerWidth = 5;
     private final double playerHeight = 100;
     private final double playerHalf = playerHeight / 2;
@@ -41,9 +47,20 @@ public class CtrlGameCanvas {
     private double ballY = Double.POSITIVE_INFINITY;
     private final double ballSize = 15;
     private final double ballHalf = ballSize / 2;
+    private Calendar iniciCalendar;
+    private Calendar finalCalendar;
+    private long iniciPartida;
+    private long finalPartida;
+    private long tempsTotal;
+    private boolean partidaEnviada=false;
     private double ballSpeed = 200;
     private final double ballSpeedIncrement = 25;
     private String ballDirection = "upRight";
+    public static boolean logged=false;
+    private String colorP1 = "";
+    private String colorP2 = "";
+    private String usernameP1 = "";
+    private String usernameP2 = "";
 
     public static boolean start=false;
     
@@ -79,21 +96,23 @@ public class CtrlGameCanvas {
                     if(response!=null){
                         JSONObject msgObj = new JSONObject(response);
                         String type = msgObj.getString("type");
-                        System.out.println(msgObj);
-                        if (type.equals("clients")) {
-                            CtrlSign.id=msgObj.getString("id");
-                            JSONArray JSONlist = msgObj.getJSONArray("list");
-                            ArrayList<String> list = new ArrayList<>();
-                            if(JSONlist.length()==1){
-                                Main.playerId=(String) JSONlist.get(0);
-                                CtrlGameCanvas.playingAs=1;
+                        //System.out.println(msgObj);
+                        if(logged==false){
+                            if (type.equals("clients")) {
+                                CtrlSign.id=msgObj.getString("id");
+                                JSONArray JSONlist = msgObj.getJSONArray("list");
+                                ArrayList<String> list = new ArrayList<>();
+                                if(JSONlist.length()==1){
+                                    Main.playerId=(String) JSONlist.get(0);
+                                    System.out.println(Main.playerId);
+                                }
+                                else if (JSONlist.length()>1){
+                                    Main.playerId=(String) JSONlist.get(JSONlist.length()-1);
+                                    System.out.println(Main.playerId);
+                                }
+                                UtilsViews.setViewAnimating("ViewLogin");
+                                System.out.println(Main.playerId);
                             }
-                            else if (JSONlist.length()==2){
-                                Main.playerId=(String) JSONlist.get(1);
-                                CtrlGameCanvas.playingAs=2;
-                            }
-                            UtilsViews.setViewAnimating("ViewLogin");
-                            System.out.println(Main.playerId);
                         }
                         if(type.equals("confirmationRegister")){
                             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -104,17 +123,60 @@ public class CtrlGameCanvas {
                             UtilsViews.setViewAnimating("ViewLogin");
                         }
                         if(type.equals("confirmationLogin")){
-                            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                            alert.setHeaderText(null);
-                            alert.setTitle("OK");
-                            alert.setContentText("Login correcte");
-                            alert.showAndWait();
-                            UtilsViews.setViewAnimating("ViewSelect");
+                            if(msgObj.getString("status").equals("OK")){
+                                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                                alert.setHeaderText(null);
+                                alert.setTitle("OK");
+                                alert.setContentText("Login correcte");
+                                Optional<ButtonType> action = alert.showAndWait();
+                                if(action.get()==ButtonType.OK){
+                                    CtrlLogin.idUsuari=msgObj.getInt("idUsuari");
+                                    System.out.println(CtrlLogin.idUsuari);
+                                    UtilsViews.setViewAnimating("ViewSelect");
+                                    logged=true;
+                                }
+                            }
+                            else{
+                                Alert alert = new Alert(Alert.AlertType.ERROR);
+                                alert.setHeaderText(null);
+                                alert.setTitle("ERROR");
+                                alert.setContentText("Login incorrecte");
+                                alert.showAndWait(); 
+                            }
                         }
                         if(type.equals("userList")){
                             CtrlUsuaris cu = (CtrlUsuaris) UtilsViews.getController("ViewUsuaris");
                             cu.loadList(response);
                         }
+                        if(type.equals("stats")){
+                            CtrlStats cs = (CtrlStats) UtilsViews.getController("ViewStats");
+                            cs.loadStats(response);
+                        }
+                        if(type.equals("playingAs")){
+                            System.out.println(msgObj);
+                            playingAs=1;
+                        }
+                        if(type.equals("color")){
+                            if(msgObj.getString("status").equals("OK")){
+                                System.out.println(msgObj);
+                                colorP1=msgObj.getString("color1");
+                                usernameP1=msgObj.getString("username1");
+                                colorP2=msgObj.getString("color2");
+                                usernameP2=msgObj.getString("username2");
+                                if(playingAs==0){
+                                    playingAs=2;
+                                }
+                                start=true;
+                            }
+                            else{
+                                colorP1="";
+                                usernameP1="";
+                                colorP2="";
+                                usernameP2="";
+                            }
+                        }
+                            
+                            
                     }
                     
                 });
@@ -124,6 +186,7 @@ public class CtrlGameCanvas {
             CtrlGame ctrlGame = (CtrlGame) UtilsViews.getController("ViewGame");
             ctrlGame.invisibleButton();
         }
+        //System.out.println(playingAs);
         if(start==true){
             final double boardWidth = cnv.getWidth();
             final double boardHeight = cnv.getHeight();
@@ -166,6 +229,7 @@ public class CtrlGameCanvas {
                         ballY=msgObj.getDouble("ballY");
                         pointsP1=msgObj.getInt("pointsP1");
                         pointsP2=msgObj.getInt("pointsP2");
+                        gameStatus=msgObj.getString("gameStatus");
                         gameStatus=msgObj.getString("gameStatus");
                     }
                 });
@@ -211,13 +275,17 @@ public class CtrlGameCanvas {
         gc.strokeRect(0, cnv.getHeight() - borderSize, cnv.getWidth(), borderSize);
 
         // Draw player
-        gc.setStroke(Color.GREEN);
-        gc.setLineWidth(playerWidth);
-        gc.strokeRect(player1X, player1Y - playerHalf, playerWidth, playerHeight);
-
-        gc.setStroke(Color.GREEN);
-        gc.setLineWidth(playerWidth);
-        gc.strokeRect(player2X, player2Y - playerHalf, playerWidth, playerHeight);
+        if(!colorP1.equals("")){
+            //System.out.println(colorP1);
+            gc.setStroke(Color.valueOf(colorP1));
+            gc.setLineWidth(playerWidth);
+            gc.strokeRect(player1X, player1Y - playerHalf, playerWidth, playerHeight);
+        }
+        if(!colorP2.equals("")){
+            gc.setStroke(Color.valueOf(colorP2));
+            gc.setLineWidth(playerWidth);
+            gc.strokeRect(player2X, player2Y - playerHalf, playerWidth, playerHeight);
+        }
 
         // Draw ball
         gc.setFill(Color.BLACK);
@@ -226,10 +294,22 @@ public class CtrlGameCanvas {
         // Draw text with points
         final double boardCenterX = cnv.getWidth() / 2;
         final double boardCenterY = cnv.getHeight() / 2;
+        if(!usernameP1.equals("")){
+            gc.setFill(Color.valueOf(colorP1));
+            gc.setFont(new Font("Arial", 20));
+            String pointsText1 = usernameP1 +": "+ pointsP1;
+            drawText(gc, pointsText1, boardCenterX - 50, 20, "center");
+        }
         gc.setFill(Color.BLACK);
-        gc.setFont(new Font("Arial", 20));
-        String pointsText = "Points P1: " + pointsP1 + " VS Points P2: " + pointsP2;
-        drawText(gc, pointsText, boardCenterX, 20, "right");
+
+        String vs = "VS";
+        drawText(gc, vs, boardCenterX, 20, "center");
+        if(!usernameP2.equals("")){
+            gc.setFill(Color.valueOf(colorP2));
+            String pointsText2 = usernameP2 +": "+ pointsP2;
+            drawText(gc, pointsText2, boardCenterX + 50, 20, "center");
+        }
+        
         //Draw waiting text
         if(gameStatus.equals("waiting")){
             gc.setFont(new Font("Arial", 40));
@@ -238,16 +318,30 @@ public class CtrlGameCanvas {
         if(gameStatus.equals("syncing")){
             gc.setFont(new Font("Arial", 20));
             drawText(gc, "Syncronizing with new player 3,2,1...", boardCenterX, boardCenterY + 20, "center");
+            iniciCalendar=Calendar.getInstance();
+            iniciPartida=iniciCalendar.getTimeInMillis();
+            partidaEnviada=false;
         }
         // Draw game over text
         if ((pointsP1==5||pointsP2==5)&&gameStatus.equalsIgnoreCase("gameOver")) {
-
+            finalCalendar=Calendar.getInstance();
+            finalPartida=finalCalendar.getTimeInMillis();
+            tempsTotal=finalPartida-iniciPartida;
+            
             gc.setFont(new Font("Arial", 40));
             drawText(gc, "GAME OVER", boardCenterX, boardCenterY - 20, "center");
 
             gc.setFont(new Font("Arial", 20));
             if(pointsP1==5&&playingAs==1||pointsP2==5&&playingAs==2){
                 drawText(gc, "You win!", boardCenterX, boardCenterY + 20, "center");
+                if(partidaEnviada==false){
+                    JSONObject obj = new JSONObject("{}");
+                    obj.put("type", "saveMatch");
+                    obj.put("time",tempsTotal);
+                    obj.put("id",CtrlLogin.idUsuari);
+                    Main.socketClient.safeSend(obj.toString());
+                    partidaEnviada=true;
+                }
             }
             else{
                 drawText(gc, "You lose!", boardCenterX, boardCenterY + 20, "center");

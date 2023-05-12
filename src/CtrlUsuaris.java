@@ -47,6 +47,7 @@ public class CtrlUsuaris implements Initializable {
                         
                     System.out.println(user);
                     // Fill template with console information
+                    itemController.setId(user.getInt("id"));
                     itemController.setTitle(user.getString("Pseudonim"));                     
                     // Add template to the list
                     vBoxList.getChildren().add(itemTemplate);

@@ -12,7 +12,7 @@ import javafx.scene.control.TextField;
 public class CtrlLogin implements Initializable{
     @FXML
     private TextField pseudonim,codi;
-
+    public static int idUsuari;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // TODO Auto-generated method stub
